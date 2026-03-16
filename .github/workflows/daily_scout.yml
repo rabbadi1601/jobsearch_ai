@@ -1,0 +1,43 @@
+name: Daily QA Job Scout
+
+on:
+  schedule:
+    # 00:30 UTC = 06:00 AM IST
+    - cron: '30 0 * * *'
+  workflow_dispatch: # Allows you to trigger it manually via GitHub UI
+
+jobs:
+  run-scout:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Important: Allows the bot to update your CSV
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pandas google-genai telegram-bot-sdk apify-client python-dotenv jobspy
+
+      - name: Execute Scout
+        env:
+          # This maps your GitHub Secrets to the script's environment
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          CHAT_ID: ${{ secrets.CHAT_ID }}
+          GEMINI_KEY: ${{ secrets.GEMINI_KEY }}
+          APIFY_TOKEN: ${{ secrets.APIFY_TOKEN }}
+        run: python finalCode.py
+
+      - name: Push Database Update
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add seen_jobs.csv
+          git commit -m "chore: sync seen_jobs [skip ci]" || echo "No changes to sync"
+          git push
