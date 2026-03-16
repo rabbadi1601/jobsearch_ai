@@ -24,7 +24,7 @@ apify_client = ApifyClient(CONFIG["APIFY_TOKEN"])
 
 # Seniority-focused search terms
 TARGET_ROLES = ["QA Architect", "QA Manager", "Automation Architect", "Quality Engineering Manager"]
-LOCATIONS = "(Hyderabad OR Gurugram OR India)"
+LOCATIONS = "(Hyderabad OR Bengaluru OR India)"
 
 
 def load_seen_jobs():
